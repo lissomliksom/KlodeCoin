@@ -1,6 +1,6 @@
 # KlodeCoin
 
-A small project to better undestand OOP in JavaScript, practicing Git, how blockchain technology works, and writing and running scripts with Node.js.
+A small project to better understand OOP in JavaScript, practice push/pull/clone in Git, how blockchain technology works, and writing and running scripts with Node.js.
 
 ## Todo
 - Implement Proof-of-Work
