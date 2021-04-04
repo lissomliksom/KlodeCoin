@@ -1,0 +1,13 @@
+{
+  "name": "klodecoin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+  },
+  "author": "Simen Kristoffersen",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.0.0"
+  }
+}
