@@ -134,10 +134,9 @@ class Blockchain {
             if(currentBlock.previousHash !== previousBlock.hash ) {
                 return false
             }
-
-            // If there's no issue with either case above, validate that all blocks are linked properly.
-            return true
         }
+        // If there's no issue with either case above, validate that all blocks are linked properly.
+        return true
     }
 }
 
