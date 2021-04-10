@@ -64,14 +64,27 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNKO
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXK0OkkxddoooooooooddxxkO0KXNWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
 
-// SHA256-hashing is not a part of JS.
-// Install crypto-js with NPM and import it.
+/* 
+    GLOSSARY:
+    
+    Genesis-block:  The first block in a chain. Created manually.
+
+    Nonce-value:    Coming soon
+
+    Proof-of-work:  A proof-of-work is a proof that you put a lot of computing power into creating a block.
+                    Also called mining.
+*/
+
+// SHA256-hashing is not a part of JS. Install crypto-js with NPM and import it.
 const SHA256 = require('crypto-js/sha256')
 
 
 class Block {
-    // Set up the basic values of the block.
-    // Data can contain various data, i.e. sender, receiver, amount...
+    /* 
+        Set up the basic values of the block.
+        Relevant values can contain a timestamp, data and hashes of the current and previous blocks.
+        Data can store various information, i.e. sender, receiver, amount...
+    */
 
     constructor(index, timestamp, data, previousHash = '') {
         this.index = index
@@ -79,25 +92,48 @@ class Block {
         this.data = data
         this.previousHash = previousHash
         this.hash = this.calculateHash()
+        this.nonce = 0
     }
 
     calculateHash() {
+        /*
+            Calculate hash for a block.
+            Include information about the previous hash, timestamp and all data.
+            Generate a hash based on all of this information.
+        */
         const hashBasicInfo = this.index + this.previousHash + this.timestamp
         const hashData = JSON.stringify(this.data)
-        return SHA256(hashBasicInfo + hashData).toString()
+        return SHA256(hashBasicInfo + hashData + this.nonce).toString()
+    }
+
+    mineBlock(difficulty) {
+        /*
+            Create the proof-of-work based on a set difficulty.    
+            Continue mining (in other words: working) until the hash starts with a number of zeroes.
+            The number of zeroes equals the number stored in a difficulty-variable.
+        */
+        while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")){
+            this.nonce++
+            this.hash = this.calculateHash()
+        }
+        console.log(`Block mined: ${this.hash}`)
     }
 }
 
+
+
 class Blockchain {
-    // Initialize a chain: an array starting with a Genesis Block.
+    /* 
+        Initialize a chain: an array starting with a Genesis Block.
+        The Genesis Chain should contain timestamp and data.
+        Since it is the first block in a chain, the previous hash is set to 0.
+    */
     constructor() {
         this.chain = [this.createGenesisBlock()]
+        this.difficulty = 5
     }
 
-    // The first block in a chain is called a Genesis Block.
-    // Create this manually.
     createGenesisBlock() {
-        // Add Index, timestamp and data. Set previous hash to 0.
         const genesisData = [0, "04/04/2021", "LeseCoin Genesis Block", "0"]
         return new Block(genesisData)
     }
@@ -107,13 +143,14 @@ class Blockchain {
     }
 
     addBlock(newBlock) {
-        // When creating a new block, get and add the hash of the previous block to it.
-        // This is to ensure that the new block is added at the end of the chain.
+        /* 
+            When creating a new block, get and add the hash of the previous block to it.
+            This is to ensure that the new block is added at the end of the chain.
+            Calculate a new hash for the new block, then add it to the end of the chain.
+            Note: Usually this is done with various checks and validations, this is just a simple example.
+        */
         newBlock.previousHash = this.getLatestBlock().hash
-        // Calculate a new hash for our new block.
-        newBlock.hash = newBlock.calculateHash()
-        // Add our block to the end of our chain.
-        // Usually this is dome with various checks and validations, this is just a simple example.
+        newBlock.mineBlock(this.difficulty)
         this.chain.push(newBlock)
     }
 
@@ -124,13 +161,13 @@ class Blockchain {
             const previousBlock = this.chain[i - 1]
             const currentBlock = this.chain[i]
 
-            // Recalculate hash for our current block.
-            // If the hash of our current block does not correspond with the recalculated value, something is wrong.
+            // Recalculate hash for the current block.
+            // If the hash of the current block does not correspond with the recalculated value, something is wrong.
             if(currentBlock.hash !== currentBlock.calculateHash()) {
                 return false
             }
 
-            // If the value for previous hash in our current block does not correspond with the actual previous hash, something is wrong.
+            // If the value for previous hash in the current block does not correspond with the actual previous hash, something is wrong.
             if(currentBlock.previousHash !== previousBlock.hash ) {
                 return false
             }
@@ -164,4 +201,21 @@ const corruptChain = () => {
     klodeCoin.chain[1].hash = klodeCoin.chain[1].calculateHash()
     console.log(`Is blockchain valid after corrupting hash? ${klodeCoin.isChainValid()}`)
     */
+}
+
+let klodeCoin = new Blockchain()
+
+console.log(`
+    ---*---
+    Mining KlodeCoin
+    -------
+`)
+
+for(let i = 1; i < 20; i++) {
+    console.log(`
+     ___
+    /__/|
+    |__|/   Mining block ${i}...
+    `)
+    klodeCoin.addBlock(new Block(1, "10/04/2021", { amount: 4}))
 }

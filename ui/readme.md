@@ -1,0 +1,1 @@
+A simple UI made with Rainbow, my classless CSS-framework, to showcase the mining of KlodeCoin.
